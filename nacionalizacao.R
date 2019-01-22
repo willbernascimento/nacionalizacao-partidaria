@@ -22,6 +22,7 @@ bd02 <- vote_mun_zone_fed(2002)
 bd06 <- vote_mun_zone_fed(2006)
 bd10 <- vote_mun_zone_fed(2010)
 bd14 <- vote_mun_zone_fed(2014)
+bd18 <- vote_mun_zone_fed(2018)
 
 bd98 <- bd98[bd98$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd02 <- bd02[bd02$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
@@ -37,6 +38,22 @@ bd_comp$SIGLA_PARTIDO[bd_comp$SIGLA_PARTIDO=='PFL'] <- 'DEM'
 bd_comp <-
   aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
             bd_comp,sum)
+
+# Dados eleitorais de 2018 foram codificados de forma diferente
+# necessário ajustar
+
+
+bd18 <- bd18 %>% filter(DS_CARGO=='Deputado Federal')
+bd18 <- aggregate(QT_VOTOS_NOMINAIS ~ ANO_ELEICAO + SG_UF + SG_PARTIDO,
+                  bd18,sum)
+names(bd18) <-   
+c('ANO_ELEICAO', 'SIGLA_UF', 'SIGLA_PARTIDO','TOTAL_VOTOS')
+
+# juntar dados de 2018 com os demais
+bd_comp <- rbind(bd_comp, bd18)
+
+
+# agregar o desempenho eleitoral
 
 bd_comp <- bd_comp %>%
   group_by(ANO_ELEICAO, SIGLA_UF) %>%
@@ -74,3 +91,6 @@ nacionaliz <- left_join(
   nacionaliz, votos_nacio[,c(1,3:5)], 
   by=c('ANO_ELEICAO', 'SIGLA_PARTIDO')
 )
+
+nacionaliz$prop_nacio <- nacionaliz$prop_nacio*100
+names(nacionaliz)[5] <- 'perc_nacio'
