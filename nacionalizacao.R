@@ -94,3 +94,9 @@ nacionaliz <- left_join(
 
 nacionaliz$prop_nacio <- nacionaliz$prop_nacio*100
 names(nacionaliz)[5] <- 'perc_nacio'
+
+nacionaliz$SIGLA_PARTIDO <- gsub(' ', '', nacionaliz$SIGLA_PARTIDO)
+nacionaliz$SIGLA_PARTIDO <- toupper(nacionaliz$SIGLA_PARTIDO)
+nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='SOLIDARIEDADE'] <- 'SD'
+nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='MDB'] <- 'PMDB'
+nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='PPB'] <- 'PP'

@@ -60,7 +60,12 @@ cand_comp$DESCRICAO_CARGO[cand_comp$DESCRICAO_CARGO=='DEPUTADO DISTRITAL'] <-'DE
 # PFL trocou de nome
 
 cand_comp$SIGLA_PARTIDO[cand_comp$SIGLA_PARTIDO=='PFL'] <- 'DEM'
+cand_comp$SIGLA_PARTIDO[cand_comp$SIGLA_PARTIDO=='SOLIDARIEDADE'] <- 'SD'
+cand_comp$SIGLA_PARTIDO[cand_comp$SIGLA_PARTIDO=='MDB'] <- 'PMDB'
+cand_comp$SIGLA_PARTIDO[cand_comp$SIGLA_PARTIDO=='PPB'] <- 'PP'
 
+cand_comp$SIGLA_PARTIDO <- gsub(' ', '', cand_comp$SIGLA_PARTIDO)
+cand_comp$SIGLA_PARTIDO <- toupper(cand_comp$SIGLA_PARTIDO)
 # somando o total de candidaturas
 
 cand_comp_ncand <- cand_comp %>% 
