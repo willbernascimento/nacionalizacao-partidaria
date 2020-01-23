@@ -7,4 +7,4 @@ Você pode encontrar os gráficos e as tabelas desse projeto no arquivo `relator
 
 Esse projeto contribuiu com as seguintes publicações acadêmicas:
 
-- [http://e-legis.camara.leg.br/cefor/index.php/e-legis/article/view/517](A nacionalização dos partidos e do sistema partidário brasileiro)
+- [A nacionalização dos partidos e do sistema partidário brasileiro](http://e-legis.camara.leg.br/cefor/index.php/e-legis/article/view/517)
