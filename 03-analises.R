@@ -1,10 +1,11 @@
 ### -------------------------------------------------------------------------- ##
-## ---------------  ANÁLISE DOS DADOS DE NACIONALIZAÇÃO --------------------- ##
-## -------------------------------------------------------------------------- ##
-## -------: Esse script sumariza a nacionalização partidára no brasil ------- ##
-## -----:  -- ##
-## -----:  --------------------------------------------- ##
-## -------------------------------------------------------------------------- ##
+## -----------------------  Nacionalização Partidária ------------------------ ##
+#
+#  Descrição: Esse script automatiza uma análise da nacionalização partidária
+#             no Brasil. Tem como objetivo aplicar técnicas de programação e
+#             análise de dados com R.
+#
+## Autor: Willber Nascimento
 ## -------------------------------------------------------------------------- ##
 
 

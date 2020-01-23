@@ -1,12 +1,21 @@
+### -------------------------------------------------------------------------- ##
+## -----------------------  Nacionalização Partidária ------------------------ ##
+#
+#  Descrição: Esse script automatiza uma análise da nacionalização partidária
+#             no Brasil. Tem como objetivo aplicar técnicas de programação e
+#             análise de dados com R.
+#
+## Autor: Willber Nascimento
+## -------------------------------------------------------------------------- ##
 
-# carregamento de pacotes
+## --------------- Carregamento de pacotes
 
 library(electionsBR)
 library(dplyr)
 library(reshape2)
 library(ineq)
 
-# ---------------------- carregamento de funções -------------------------------
+# ---------------- Carregamento de funções
 gsub2 <- function(pattern, replacement, x, ...) {
   for(i in 1:length(pattern))
     x <- gsub(pattern[i], replacement[i], x, ...)
@@ -15,7 +24,10 @@ gsub2 <- function(pattern, replacement, x, ...) {
 
 clean.accent <- function(x) {	gsub2(c('ä','ã','à','á','â','ê','ë','è','é','ï','ì','í','ö','õ','ò','ó','ô','ü','ù','ú','û','À','Á','É','Ê','Í','Ó','Ú','ñ','Ñ','ç','Ç','ª','º','Õ','Ô','Ã','Â','Ü',"'",'-'), c('a','a','a','a','a','e','e','e','e','i','i','i','o','o','o','o','o','u','u','u','u','A','A','E','E','I','O','U','n','n','c','C','_','_','O','O','A','A','U',' ',' '),x)
 }
-# ------------------------------------------------------------------------------
+
+# ---------------- Download eletoral data 
+
+# download usando o pacote electionsBR
 
 bd98 <- vote_mun_zone_fed(1998)
 bd02 <- vote_mun_zone_fed(2002)
@@ -24,6 +36,8 @@ bd10 <- vote_mun_zone_fed(2010)
 bd14 <- vote_mun_zone_fed(2014)
 bd18 <- vote_mun_zone_fed(2018)
 
+# filtrando cargo
+
 bd98 <- bd98[bd98$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd02 <- bd02[bd02$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd06 <- bd06[bd06$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
@@ -31,9 +45,15 @@ bd10 <- bd10[bd10$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd14 <- bd14[bd14$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd14$TRANSITO <- NULL
 
+# juntar objetos
+
 bd_comp <- rbind(bd98, bd02, bd06, bd10, bd14)
 
+# alterar nome de partido
+
 bd_comp$SIGLA_PARTIDO[bd_comp$SIGLA_PARTIDO=='PFL'] <- 'DEM'
+
+# agregação do total de votos por partido e UF
 
 bd_comp <-
   aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
@@ -50,6 +70,7 @@ names(bd18) <-
 c('ANO_ELEICAO', 'SIGLA_UF', 'SIGLA_PARTIDO','TOTAL_VOTOS')
 
 # juntar dados de 2018 com os demais
+
 bd_comp <- rbind(bd_comp, bd18)
 
 
@@ -94,6 +115,8 @@ nacionaliz <- left_join(
 
 nacionaliz$prop_nacio <- nacionaliz$prop_nacio*100
 names(nacionaliz)[5] <- 'perc_nacio'
+
+# formatar nome dos partidos 
 
 nacionaliz$SIGLA_PARTIDO <- gsub(' ', '', nacionaliz$SIGLA_PARTIDO)
 nacionaliz$SIGLA_PARTIDO <- toupper(nacionaliz$SIGLA_PARTIDO)

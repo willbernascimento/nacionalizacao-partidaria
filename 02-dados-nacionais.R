@@ -1,13 +1,16 @@
 ## -------------------------------------------------------------------------- ##
 ## ---------------  DESEMPENHO CANDIDATURAS NACIONAL DOS PARTIDOS ----------- ##
 ## -------------------------------------------------------------------------- ##
-## -------: Esse script baixa e sumariza informações sobre as candidaturas -- ##
+## -----: Esse script baixa e sumariza informações sobre as candidaturas -- ##
 ## -----: dos partidos nas eleições gerais de 1998-2018. Usamos como fonte -- ##
-## -----: o pacote electionsBR. --------------------------------------------- ##
+## -----: o pacote electionsBR. 
+##
+## -----: Autor: Willber Nascimento
+##
 ## -------------------------------------------------------------------------- ##
 ## -------------------------------------------------------------------------- ##
 
-# baixando os dados do TSE
+## ---------- baixando os dados do TSE
 
 library(electionsBR)
 
