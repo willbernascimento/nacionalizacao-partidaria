@@ -8,6 +8,14 @@
 ## Autor: Willber Nascimento
 ## -------------------------------------------------------------------------- ##
 
+
+## ----------- Informações sobre a estrutura do banco de dados ---------------##
+# A unidade de analise de análise do banco de nacionalização partidária é 
+# o partido politico i na eleição j. Conseguimos isso agregando os votos de seus
+# deputados federais dentro de cada Estado e tomando sua porcentagem. Depois disso
+# aplica-se a fórmula de gini. 
+## ---------------------------------------------------------------------------##
+
 ## --------------- Carregamento de pacotes
 
 library(electionsBR)
@@ -15,66 +23,81 @@ library(dplyr)
 library(reshape2)
 library(ineq)
 
-# ---------------- Carregamento de funções
-gsub2 <- function(pattern, replacement, x, ...) {
-  for(i in 1:length(pattern))
-    x <- gsub(pattern[i], replacement[i], x, ...)
-  x
-}
 
-clean.accent <- function(x) {	gsub2(c('ä','ã','à','á','â','ê','ë','è','é','ï','ì','í','ö','õ','ò','ó','ô','ü','ù','ú','û','À','Á','É','Ê','Í','Ó','Ú','ñ','Ñ','ç','Ç','ª','º','Õ','Ô','Ã','Â','Ü',"'",'-'), c('a','a','a','a','a','e','e','e','e','i','i','i','o','o','o','o','o','u','u','u','u','A','A','E','E','I','O','U','n','n','c','C','_','_','O','O','A','A','U',' ',' '),x)
-}
+## --------------- Download dos dados usando electionsBR
 
-# ---------------- Download eletoral data 
+# obs:
+# Você vai precisar de internet e muita memória (pelo menos 16GB) RAM pra 
+# alocar todos os objetos abaixo. Como eu não possuo, vou salvá-los
+# e deletar da memória. Além disso, vou dividir as tarefas para cada
+# um dos objetos.
 
-# download usando o pacote electionsBR
+# Criando as pastas para alocar os dados: Linux
+
+system("mkdir -p ./dados/{brutos/{votos,candidatos},manipulados}")
+
+# Windowns: # Não sei.
+
+# --------------- dowload dos dados -----------
+# Faz o download, salva o banco, filtra os deputados federais
 
 bd98 <- vote_mun_zone_fed(1998)
 bd02 <- vote_mun_zone_fed(2002)
 bd06 <- vote_mun_zone_fed(2006)
 bd10 <- vote_mun_zone_fed(2010)
-bd14 <- vote_mun_zone_fed(2014)
-bd18 <- vote_mun_zone_fed(2018)
 
-# filtrando cargo
+saveRDS(bd98, "./dados/brutos/votos/vote_mun_zone_fed_1998.rds")
+saveRDS(bd02, "./dados/brutos/votos/vote_mun_zone_fed_2002.rds")
+saveRDS(bd06, "./dados/brutos/votos/vote_mun_zone_fed_2006.rds")
+saveRDS(bd10, "./dados/brutos/votos/vote_mun_zone_fed_2010.rds")
 
 bd98 <- bd98[bd98$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd02 <- bd02[bd02$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd06 <- bd06[bd06$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 bd10 <- bd10[bd10$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
-bd14 <- bd14[bd14$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
+
+# Eleição 2014
+bd14 <- vote_mun_zone_fed(2014)
+saveRDS(bd14, "./dados/brutos/votos/vote_mun_zone_fed_2014.rds")
+bd14 <- bd14[bd14$DESCRICAO_CARGO=='Deputado Federal',]
 bd14$TRANSITO <- NULL
 
-# juntar objetos
+
+# Eleições 2018
+bd18 <- vote_mun_zone_fed(2018)
+saveRDS(bd18, "./dados/brutos/votos/vote_mun_zone_fed_2018.rds")
+bd18 <- bd18[bd18$DESCRICAO_CARGO=='Deputado Federal',]
+
+
+## ------------- Agregação dos dados
+
+# Juntar bancos de dados que possuem a mesma estrutura.
 
 bd_comp <- rbind(bd98, bd02, bd06, bd10, bd14)
 
-# alterar nome de partido
-
-bd_comp$SIGLA_PARTIDO[bd_comp$SIGLA_PARTIDO=='PFL'] <- 'DEM'
-
 # agregação do total de votos por partido e UF
+# em suma: somamos os votos dos deputados para cada partido
 
-bd_comp <-
-  aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
+bd_comp <- aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
             bd_comp,sum)
 
-# Dados eleitorais de 2018 foram codificados de forma diferente
-# necessário ajustar
+# Agregar dados de 2018
 
-
-bd18 <- bd18 %>% filter(DS_CARGO=='Deputado Federal')
-bd18 <- aggregate(QT_VOTOS_NOMINAIS ~ ANO_ELEICAO + SG_UF + SG_PARTIDO,
+bd18 <- aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
                   bd18,sum)
-names(bd18) <-   
-c('ANO_ELEICAO', 'SIGLA_UF', 'SIGLA_PARTIDO','TOTAL_VOTOS')
 
 # juntar dados de 2018 com os demais
 
 bd_comp <- rbind(bd_comp, bd18)
 
 
-# agregar o desempenho eleitoral
+
+## A partir de agora inicia-se os calculos necessários para criar o indice
+## de nacionalização partidária
+
+# ------------ agregar o desempenho eleitoral por eleição e UF
+# calculo da proporção de votos dos partidos por UF 
+# ordenar o banco de acordo com proporção de votos
 
 bd_comp <- bd_comp %>%
   group_by(ANO_ELEICAO, SIGLA_UF) %>%
@@ -84,12 +107,16 @@ bd_comp <- bd_comp %>%
   mutate(prop_votos=(TOTAL_VOTOS/votos_validos)) %>%
   arrange(ANO_ELEICAO, SIGLA_UF,-prop_votos)
 
+# total de votos dos partidos somados nacionalmente
+
 votos_nacio <-
   bd_comp %>%
   group_by(ANO_ELEICAO, SIGLA_PARTIDO) %>%
   summarise(
     votos_nacio = sum(TOTAL_VOTOS)
   )
+
+# proporção de votos nacionais
 
 votos_nacio <- 
   votos_nacio %>%
@@ -99,7 +126,13 @@ votos_nacio <-
   ) %>% left_join(.,votos_nacio, by='ANO_ELEICAO') %>%
   mutate(prop_nacio = votos_nacio/validos_nacio)
 
-# Nacionalização partidária
+
+
+## -----------  Nacionalização partidária
+## calculo do indice de nacionalização partidária seguindo proposta de 
+## Jones e Mainwaring (2003).
+## o índice é a subtração de 1 do coeficiente de Gini da proporção de votos
+## dos partidos em cada uma das UFs, em cada uma das eleições;
 
 nacionaliz <-  
   bd_comp %>%
@@ -108,18 +141,38 @@ nacionaliz <-
     gini = 1-(ineq(prop_votos, type = 'Gini'))
   )
 
+# agregar a nacionalização com as informações disponiveis
+
 nacionaliz <- left_join(
   nacionaliz, votos_nacio[,c(1,3:5)], 
   by=c('ANO_ELEICAO', 'SIGLA_PARTIDO')
 )
 
+# toma o percentual 
+
 nacionaliz$prop_nacio <- nacionaliz$prop_nacio*100
+
+# renomeia a variável
+
 names(nacionaliz)[5] <- 'perc_nacio'
 
-# formatar nome dos partidos 
+## ----------- formatações no nome dos partidos
+## altera o nome de partidos, remove espaços e dispoe em caixa alta
 
 nacionaliz$SIGLA_PARTIDO <- gsub(' ', '', nacionaliz$SIGLA_PARTIDO)
 nacionaliz$SIGLA_PARTIDO <- toupper(nacionaliz$SIGLA_PARTIDO)
+nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='PFL'] <- 'DEM'
 nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='SOLIDARIEDADE'] <- 'SD'
 nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='MDB'] <- 'PMDB'
 nacionaliz$SIGLA_PARTIDO[nacionaliz$SIGLA_PARTIDO=='PPB'] <- 'PP'
+
+nacionaliz$SIGLA_PARTIDO <-
+  recode(
+    nacionaliz$SIGLA_PARTIDO,
+    PFL = "DEM",
+    PMDB = "MDB",
+    PPB = "PP",
+    SOLIDARIEDADE = "SD"
+  )
+
+saveRDS(nacionaliz, "dados/manipulados/nacionalizacao.rds")

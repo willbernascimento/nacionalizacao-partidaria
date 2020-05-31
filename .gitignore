@@ -2,3 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+
+dados/brutos/*
+
+1998/*
+2002/*
+2006/*
+2010/*
+2014/*
+2018/*

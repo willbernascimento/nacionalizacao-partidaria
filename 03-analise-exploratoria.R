@@ -8,16 +8,24 @@
 ## Autor: Willber Nascimento
 ## -------------------------------------------------------------------------- ##
 
+library(dplyr)
+library(ggplot2)
+
+
+nacionalizacao <- readRDS("./dados/manipulados/nacionalizacao.rds")
+
+
+
 
 ## -------------------------------------------------------------------------- ##
 ## --: PARTE 1: Nacionalização ---------------------------------------------- ##
 ## -------------------------------------------------------------------------- ##
 
-library(dplyr)
-
 
 # descritivos da nacionalização partidária
-nacionaliz %>% 
+
+desc_nacionalizacao <- 
+nacionalizacao %>% 
   group_by(ANO_ELEICAO) %>% 
   summarise(
     N = n(),
@@ -26,12 +34,11 @@ nacionaliz %>%
     Média  = mean(gini),
     Desvio = sd(gini),
     Coef.V = (Desvio/Média)*100
-  ) %>% write.table(.,file='./tabelas/desc_nacio.csv', sep = ';', dec = ',', row.names = F)
+  ) %>% rename("Eleição" = ANO_ELEICAO )
 
+write.table(desc_nacionalizacao,file='./tabelas/desc_nacio.csv', sep = ';', dec = ',', row.names = F)
 
-library(ggplot2)
-
-nacionaliz %>% 
+nacionalizacao %>% 
   group_by(ANO_ELEICAO) %>% 
   summarise(
     N = n(),
@@ -43,14 +50,14 @@ nacionaliz %>%
   ) %>% ggplot(., aes(as.factor(ANO_ELEICAO), Média, group=1))+
   geom_line()+
   geom_point()+
-  labs(x='', y='Média do INP')
+  labs(x='', y='INP (Média)', caption = "Willber Nascimento. \nFonte: TSE/electionsBR")
 
 ggsave("./graficos/media_naci.png", height=3, width=5, units='in', dpi=450)
 
 
 ## 1998
 
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==1998 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==1998 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -63,7 +70,7 @@ ggsave("./graficos/bar1998.png", height=3, width=5, units='in', dpi=450)
 
 ## 2002
 
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2002 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2002 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -76,7 +83,7 @@ ggsave("./graficos/bar2002.png", height=3, width=5, units='in', dpi=450)
 
 
 ## 2006
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2006 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2006 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -88,7 +95,7 @@ ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2006 & nacionaliz$perc_nacio>=1,],
 ggsave("./graficos/bar2006.png", height=3, width=5, units='in', dpi=450)
 
 # 2010
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2010 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2010 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -101,7 +108,7 @@ ggsave("./graficos/bar2010.png", height=3, width=5, units='in', dpi=450)
 
 
 # 2014
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2014 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2014 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -113,7 +120,7 @@ ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2014 & nacionaliz$perc_nacio>=1,],
 ggsave("./graficos/bar2014.png", height=3, width=5, units='in', dpi=450)
 
 # 2018
-ggplot(nacionaliz[nacionaliz$ANO_ELEICAO==2018 & nacionaliz$perc_nacio>=1,], 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2018 & nacionalizacao$perc_nacio>=1,], 
        aes(reorder(SIGLA_PARTIDO, -gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
@@ -131,26 +138,26 @@ ggsave("./graficos/bar2018.png", height=3, width=5, units='in', dpi=450)
 ## ------------------------------------------------------------------------ ##
 ## ------------------------------------------------------------------------ ##
 
-nacionaliz %>% 
+nacionalizacao %>% 
   filter(SIGLA_PARTIDO %in% c('PP', 'PFL', 'PTB', 'PMDB', 'PSDB', 'PDT','PT')) %>% 
   ggplot(aes(ANO_ELEICAO, gini, fill=SIGLA_PARTIDO, colour=SIGLA_PARTIDO))+
   geom_line(size=1)+
   geom_point()
 
 
-nacionaliz %>% 
-  group_by(ANO_ELEICAO) %>% 
-  summarise(
-    N = n(),
-    Mínimo = min(),
-    Máximo = min(),
-    Média  = mean(),
-    Desvio = sd(),
-    Coef.V = (Desvio/Média)*100
-  )
+# nacionalizacao %>% 
+#   group_by(ANO_ELEICAO) %>% 
+#   summarise(
+#     N = n(),
+#     Mínimo = min(),
+#     Máximo = min(),
+#     Média  = mean(),
+#     Desvio = sd(),
+#     Coef.V = (Desvio/Média)*100
+#   )
 
 
-nacionaliz %>% 
+nacionalizacao %>% 
   group_by(ANO_ELEICAO) %>% 
   summarise(
     INSP=sum(gini*(perc_nacio/100))

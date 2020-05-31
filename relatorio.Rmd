@@ -1,10 +1,61 @@
 ---
-title: "relatorio"
-output: pdf_document
+title: "Relatório: Nacionalização Partidária no Brasil"
+author: "Willber Nascimento"
+lang: "pt-br"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+abstract: "O objetivo desse relatório é descrever os dados da nacionalização dos partidos e do sistema partidário brasileiro. Coletamos dados do desempenho eleitoral dos partidos nos pleitos da Câmara dos Deputados de 1998-2018 e aplicamos a fórmula de Gini para criamos o Índice de Nacionalização Partidária (INP), seguindo o modelo proposto por Jones e Mainwaring (2003). "
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
+source("./03-analise-exploratoria.R")
+
 ```
 
-## 
+# Introdução
+
+Em termos gerais, a nacionalização tenta avaliar o grau em que o apoio eleitoral dos partidos políticos é homogêneo entre as unidades federativas estaduais. De acordo com Jones e Mainwaring (J&M) (2003), sistemas partidários nacionalizados refletem um importante componente da dinâmica da competição partidária, possui um efeito sobre fatores como a sobrevivência da democracia, competição política e no comportamentodo legislativo e nas políticas públicas.
+
+Na existência de um sistema partidário nacionalizado, os partidos possuem abrangência nacional e tendem a se expressar e agir segundo uma orientação nacional comum em vez de se dividirem em questões regionais ou subnacionais (Borges, 2015; Morgenstern at al, 2009, Jones, 2010). Diversas questões téoricas e metodológicas estão postas nos circulos acadêmicos e este documento não tenta respondê-las. 
+
+O objetivo aqui é *aplicar o conceito e a medida proposta por Jones e Mainwaring (2003) para o caso brasileiro* em eleições sucessivas. O material tem como cunho a ideia de servir como uma fonte dos dados e um laborátorio para interassos em R e Rmarkdown e tecnologias relacionadas. 
+
+## Como medimos a nacionalização?
+
+J&M (2003) argumentaram que uma vez que a nacionalização é uma medida de homogeneidade da distribuição dos votos entre unidades eleitorais distintas seria perfeitamente possível aplicar a fórmula do coeficiente de Gini ^[Você pode acessar o artigo da Wikipedia para ter uma noção do que é o Gini: <https://pt.wikipedia.org/wiki/Coeficiente_de_Gini>. Para uma noção mais aprofundada sobre a mensuração de índices desse tipo você pode ver Cowell (2010) <http://darp.lse.ac.uk/papersDB/Cowell_measuringinequality3.pdf> e Taagepera (1979).] para mensurar esse conceito. Uma vez mensurado o Gini subtrai-se 1 para que inverta-se a interpretação: quanto mais próximo de 1 mais nacionalizado. 
+
+A aplicação poderia ser resumida como:
+
+$$
+\begin{aligned}
+ GINI = \sum_{i=0}^{k-1} (Y_{i+1} + Y_{i})(X_{i+1} - X_{i})
+\end{aligned}
+$$
+Onde:
+
+$k$: o número de distritos
+
+$Y_i$ a proporção acumulada da riqueza para o distrito $ith$
+
+$X_i$ a proporção acumulada da população para o distrito $ith$
+
+Felizmente o R possui pacotes que aplicam fórmulas similares a esta para nós. Nesse projeto usamos a função `ineq` do pacote [`ineq`](https://www.rdocumentation.org/packages/ineq/versions/0.2-13). Seu uso é tão simples quanto: ```ineq(x, type="Gini")```, para uma variável quantitativa *x* qualquer. No nosso caso: proporção de votos dos partidos por UF.
+
+
+# Explorando o INP
+
+```{r, echo=FALSE}
+kable(desc_nacionalizacao) %>% 
+  kable_styling(bootstrap_options = "striped", 
+                full_width = F, 
+                fixed_thead = T,
+                position = "left",
+                font_size = 8)
+```
+
+
