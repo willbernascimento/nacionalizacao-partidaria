@@ -7,7 +7,7 @@ output:
     toc: true
     number_sections: true
     fig_caption: yes
-abstract: "O objetivo desse relatório é descrever os dados da nacionalização dos partidos e do sistema partidário brasileiro. Coletamos dados do desempenho eleitoral dos partidos nos pleitos da Câmara dos Deputados de 1998-2018 e aplicamos a fórmula de Gini para criamos o Índice de Nacionalização Partidária (INP), seguindo o modelo proposto por Jones e Mainwaring (2003). "
+abstract: "O objetivo desse relatório é descrever os dados da nacionalização dos partidos e do sistema partidário brasileiro. Coletamos dados do desempenho eleitoral dos partidos nos pleitos da Câmara dos Deputados de 1998-2018 e aplicamos a fórmula de Gini para criamos o Índice de Nacionalização Partidária (INP) e o Índice de Nacionalização do Sistema Partidário (INSP), seguindo o modelo proposto por Jones e Mainwaring (2003). Ao todo temos informações para todos os partidos que lançaram candidatura para deputado federal neste período.  Combinamos estatística descritiva e visualização de dados para exarminarmos o grau de nacionalização dos partidos e do sistema partidário brasileiro. Os resultados preliminares indicam: (1) na média os partidos são pouco nacionalizados; (2) PMDB, PT, PSDB, PP e PR são os partidos mais nacionalizados do brasil; (3); (4)."
 ---
 
 ```{r setup, include=FALSE}
@@ -83,12 +83,13 @@ grid.arrange(ggINPBox,ggINPmedia, ncol=2)
 
 ```
 
-Como podemos ver na tabela \ref{tab:inpdesc} existem partidos que existem partidos que estão consideravelmente acima da média no INP: o máximo de 2018, por exemplo, 0.73. Tanto o desvio padrão, quanto o coeficiente de variação tambeém são evidências de que alguns partidos são consideravelmente diferentes dos demais. O boxplot é interessante aqui já que ele aparenta indicar um padrão específico de variação entre as eleições. Elas conhecidem com pleitos envolvendo incumbentes na disputa: a variação no grau de nacionalização é menor. Tanto as caixas são menores, quanto os mínimos são sempre maiores que nos anos com eleição sem incumbente.
+Como podemos ver na tabela \ref{tab:inpdesc}, existem partidos que existem partidos que estão consideravelmente acima da média no INP: o máximo de 2018, por exemplo, 0.73. Tanto o desvio padrão, quanto o coeficiente de variação tambeém são evidências de que alguns partidos são consideravelmente diferentes dos demais. O boxplot é interessante aqui já que ele aparenta indicar um padrão específico de variação entre as eleições. Elas conhecidem com pleitos envolvendo incumbentes na disputa presidencial: a variação no grau de nacionalização é menor. Tanto as caixas são menores, quanto os mínimos são sempre maiores que nos anos com eleição sem incumbente. Contudo, em 2014 a distribuição parece bem semelhante às eleições anteriores, enquanto em 2018 (eleições abertas) a variação é menor como se ouvesse incumentes.  Uma possível explicação dos pleitos seria o de coordenação eleitoral no pleito presidencial e seus efeitos nas demais. 
 
-```{r, echo=FALSE, fig.width=8, fig.height=10}
+```{r inpPartidos, echo=FALSE, fig.width=8, fig.height=10,fig.cap="\\label{fig:inpPartidos}Nacionalização Partidária por Partido e Eleição"}
 
 grid.arrange(ggINPpartidos98, ggINPpartidos02,
              ggINPpartidos06, ggINPpartidos10,
              ggINPpartidos14, ggINPpartidos18, ncol=2)
-
 ```
+
+Na figura  \ref{fig:inpPartidos} vemos a distribuição do INP entre os partidos com pelo menos 1% de votos nacionais para cada uma das eleições.

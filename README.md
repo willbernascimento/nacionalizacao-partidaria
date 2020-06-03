@@ -12,6 +12,10 @@ Para este projeto utilizamos o [R](https://cran.r-project.org/) e uma coleção 
 
 Você pode encontrar os gráficos e as tabelas desse projeto no arquivo `relatorio.pdf`.
 
+# Dados
+
+Os dados brutos utilizados neste projeto são oriundos os TSE, acessados pelo pacote `electionsBR`. Devido a seu tamanho não é possível alocá-los aqui no GH. Contudo, os dados manipulados encontram-se na pasta  [dados](./dados/).
+
 # Publicações
 
 Esse projeto contribuiu com as seguintes publicações acadêmicas:

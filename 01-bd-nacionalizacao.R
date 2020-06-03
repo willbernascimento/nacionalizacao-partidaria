@@ -59,21 +59,28 @@ bd10 <- bd10[bd10$DESCRICAO_CARGO=='DEPUTADO FEDERAL',]
 # Eleição 2014
 bd14 <- vote_mun_zone_fed(2014)
 saveRDS(bd14, "./dados/brutos/votos/vote_mun_zone_fed_2014.rds")
-bd14 <- bd14[bd14$DESCRICAO_CARGO=='Deputado Federal',]
-bd14$TRANSITO <- NULL
+bd14 <- bd14[bd14$DS_CARGO=='Deputado Federal',]
 
+# agrega o total de votos
+bd14 <- aggregate(QT_VOTOS_NOMINAIS ~ ANO_ELEICAO + SG_UF + SG_PARTIDO,bd14, sum)
+
+# compatibiliza nomes
+names(bd14) <- c("ANO_ELEICAO","SIGLA_UF","SIGLA_PARTIDO","TOTAL_VOTOS")
 
 # Eleições 2018
 bd18 <- vote_mun_zone_fed(2018)
 saveRDS(bd18, "./dados/brutos/votos/vote_mun_zone_fed_2018.rds")
 bd18 <- bd18[bd18$DESCRICAO_CARGO=='Deputado Federal',]
 
+# agrega o total de votos
+bd18 <- aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
+                  bd18,sum)
 
 ## ------------- Agregação dos dados
 
 # Juntar bancos de dados que possuem a mesma estrutura.
 
-bd_comp <- rbind(bd98, bd02, bd06, bd10, bd14)
+bd_comp <- rbind(bd98, bd02, bd06, bd10)
 
 # agregação do total de votos por partido e UF
 # em suma: somamos os votos dos deputados para cada partido
@@ -81,14 +88,9 @@ bd_comp <- rbind(bd98, bd02, bd06, bd10, bd14)
 bd_comp <- aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
             bd_comp,sum)
 
-# Agregar dados de 2018
+# juntar dados de 2014 e 2018 com os demais
 
-bd18 <- aggregate(TOTAL_VOTOS ~ ANO_ELEICAO + SIGLA_UF + SIGLA_PARTIDO,
-                  bd18,sum)
-
-# juntar dados de 2018 com os demais
-
-bd_comp <- rbind(bd_comp, bd18)
+bd_comp <- rbind(bd_comp, bd14, bd18)
 
 
 
@@ -176,3 +178,4 @@ nacionaliz$SIGLA_PARTIDO <-
   )
 
 saveRDS(nacionaliz, "dados/manipulados/nacionalizacao.rds")
+
