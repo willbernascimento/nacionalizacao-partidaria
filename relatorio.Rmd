@@ -6,6 +6,7 @@ output:
   pdf_document:
     toc: true
     number_sections: true
+    fig_caption: yes
 abstract: "O objetivo desse relatório é descrever os dados da nacionalização dos partidos e do sistema partidário brasileiro. Coletamos dados do desempenho eleitoral dos partidos nos pleitos da Câmara dos Deputados de 1998-2018 e aplicamos a fórmula de Gini para criamos o Índice de Nacionalização Partidária (INP), seguindo o modelo proposto por Jones e Mainwaring (2003). "
 ---
 
@@ -13,6 +14,7 @@ abstract: "O objetivo desse relatório é descrever os dados da nacionalização
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
 library(kableExtra)
+library(gridExtra)
 source("./03-analise-exploratoria.R")
 
 ```
@@ -44,18 +46,49 @@ $Y_i$ a proporção acumulada da riqueza para o distrito $ith$
 
 $X_i$ a proporção acumulada da população para o distrito $ith$
 
-Felizmente o R possui pacotes que aplicam fórmulas similares a esta para nós. Nesse projeto usamos a função `ineq` do pacote [`ineq`](https://www.rdocumentation.org/packages/ineq/versions/0.2-13). Seu uso é tão simples quanto: ```ineq(x, type="Gini")```, para uma variável quantitativa *x* qualquer. No nosso caso: proporção de votos dos partidos por UF.
+Felizmente o R possui pacotes que aplicam fórmulas similares a esta para nós. Nesse projeto usamos a função `ineq` do pacote [`ineq`](https://www.rdocumentation.org/packages/ineq/versions/0.2-13). Seu uso é tão simples quanto: ```ineq(x, type="Gini")```, para uma variável quantitativa *x* qualquer. No nosso caso: proporção de votos dos partidos por UF. De acordo com J&M (2003) o Índice de nacionalização partidária é:
 
+$$
+INP = 1 - GINI
+$$
+
+Isso significa que quanto mais próximo de 1, mais nacionalizado será a distribuição do 
+apoio eleitoral dos partidos. Você pode acessar os códigos para ver como apliquei função.
 
 # Explorando o INP
 
-```{r, echo=FALSE}
-kable(desc_nacionalizacao) %>% 
-  kable_styling(bootstrap_options = "striped", 
-                full_width = F, 
-                fixed_thead = T,
-                position = "left",
-                font_size = 8)
+Abaixo selecionamos algumas informações sobre a distribuição do índice de nacionalização partidária (INP). Na média, o INP tem aumentado a cada eleição analisada, contudo ela indica bastante concentração. Na média os partidos políticos brasileiros são pouco nacionalizados.
+
+```{r inpdesc, echo=FALSE}
+kable(desc_nacionalizacao, digits = 2, label = "inpdesc",caption = "Descritivos INP por eleição") %>%
+  kable_styling(
+    bootstrap_options = "striped",
+    latex_options = "HOLD_position",
+    full_width = F,
+    fixed_thead = T,
+    position = "center",
+    font_size = 9
+  ) %>%
+  footnote(
+    "Willber Nascimento. Fonte: TSE/electionsBR.",
+    general_title = "",
+    fixed_small_size = TRUE,
+    footnote_as_chunk = T
+  )
 ```
 
+```{r, echo=FALSE, fig.width=12}
 
+grid.arrange(ggINPBox,ggINPmedia, ncol=2)
+
+```
+
+Como podemos ver na tabela \ref{tab:inpdesc} existem partidos que existem partidos que estão consideravelmente acima da média no INP: o máximo de 2018, por exemplo, 0.73. Tanto o desvio padrão, quanto o coeficiente de variação tambeém são evidências de que alguns partidos são consideravelmente diferentes dos demais. O boxplot é interessante aqui já que ele aparenta indicar um padrão específico de variação entre as eleições. Elas conhecidem com pleitos envolvendo incumbentes na disputa: a variação no grau de nacionalização é menor. Tanto as caixas são menores, quanto os mínimos são sempre maiores que nos anos com eleição sem incumbente.
+
+```{r, echo=FALSE, fig.width=8, fig.height=10}
+
+grid.arrange(ggINPpartidos98, ggINPpartidos02,
+             ggINPpartidos06, ggINPpartidos10,
+             ggINPpartidos14, ggINPpartidos18, ncol=2)
+
+```

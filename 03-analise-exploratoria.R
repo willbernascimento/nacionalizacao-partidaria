@@ -10,12 +10,10 @@
 
 library(dplyr)
 library(ggplot2)
+library(ggthemes)
 
 
 nacionalizacao <- readRDS("./dados/manipulados/nacionalizacao.rds")
-
-
-
 
 ## -------------------------------------------------------------------------- ##
 ## --: PARTE 1: Nacionalização ---------------------------------------------- ##
@@ -24,8 +22,7 @@ nacionalizacao <- readRDS("./dados/manipulados/nacionalizacao.rds")
 
 # descritivos da nacionalização partidária
 
-desc_nacionalizacao <- 
-nacionalizacao %>% 
+desc_nacionalizacao <- nacionalizacao %>% 
   group_by(ANO_ELEICAO) %>% 
   summarise(
     N = n(),
@@ -38,6 +35,20 @@ nacionalizacao %>%
 
 write.table(desc_nacionalizacao,file='./tabelas/desc_nacio.csv', sep = ';', dec = ',', row.names = F)
 
+
+
+ggINPBox <- 
+nacionalizacao %>% 
+  ggplot(., aes(factor(ANO_ELEICAO), gini))+
+  geom_boxplot() + 
+  labs(x="", y="Nacionalização partidária (INP)", 
+       title="Descritivos do INP por eleição",
+       caption = "Willber Nascimento \nFonte: TSE/electionsBR")+
+  theme_hc()
+
+ggsave("./graficos/ggINPBox.png", height=3, width=5, units='in', dpi=450)
+
+ggINPmedia <- 
 nacionalizacao %>% 
   group_by(ANO_ELEICAO) %>% 
   summarise(
@@ -50,84 +61,111 @@ nacionalizacao %>%
   ) %>% ggplot(., aes(as.factor(ANO_ELEICAO), Média, group=1))+
   geom_line()+
   geom_point()+
-  labs(x='', y='INP (Média)', caption = "Willber Nascimento. \nFonte: TSE/electionsBR")
+  labs(x='', y='Nacionalização partidária (INP)',
+       title = "Média do INP por eleição",
+       caption = "Willber Nascimento \nFonte: TSE/electionsBR") +
+  theme_hc()
 
-ggsave("./graficos/media_naci.png", height=3, width=5, units='in', dpi=450)
+ggsave("./graficos/ggINPmedia.png", height=3, width=5, units='in', dpi=450)
 
 
 ## 1998
 
-ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==1998 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
-  geom_bar(stat = 'identity')+
-  theme(
-    axis.title.x = element_blank(),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
-  geom_hline(yintercept=0.449, linetype="dashed")+
-  labs(x='', y='Média do INP')
+ggINPpartidos98 <- 
+ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO == 1998 &
+                        nacionalizacao$perc_nacio >= 1, ],
+       aes(reorder(SIGLA_PARTIDO,gini), gini)) +
+  geom_bar(stat = 'identity') +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(
+          angle = 90,
+          vjust = 0.5,
+          hjust = 1
+        )) +
+  geom_hline(yintercept = 0.449, linetype = "dashed") +
+  labs(x = '', y = 'Média do INP') +
+  coord_flip() +
+  theme_hc()
+
+
 
 ggsave("./graficos/bar1998.png", height=3, width=5, units='in', dpi=450)
 
 ## 2002
-
+ggINPpartidos02 <- 
 ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2002 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
+       aes(reorder(SIGLA_PARTIDO, gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
-  geom_hline(yintercept=0.437, linetype="dashed")+
-  labs(x='', y='Média do INP')
+  geom_hline(yintercept=0.44, linetype="dashed")+
+  labs(x='', y='Média do INP') +
+  coord_flip() +
+  theme_hc()
 
 ggsave("./graficos/bar2002.png", height=3, width=5, units='in', dpi=450)
 
 
 ## 2006
+ggINPpartidos06 <- 
 ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2006 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
+       aes(reorder(SIGLA_PARTIDO, gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
-  geom_hline(yintercept=0.487, linetype="dashed")+
-  labs(x='', y='Média do INP')
+  geom_hline(yintercept=0.49, linetype="dashed")+
+  labs(x='', y='Média do INP') +
+  coord_flip() +
+  theme_hc()
 
 ggsave("./graficos/bar2006.png", height=3, width=5, units='in', dpi=450)
 
 # 2010
+ggINPpartidos10 <- 
 ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2010 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
+       aes(reorder(SIGLA_PARTIDO, gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
-  geom_hline(yintercept=0.489, linetype="dashed")+
-  labs(x='', y='Média do INP')
+  geom_hline(yintercept=0.49, linetype="dashed")+
+  labs(x='', y='Média do INP') +
+  coord_flip() +
+  theme_hc()
 
 ggsave("./graficos/bar2010.png", height=3, width=5, units='in', dpi=450)
 
 
 # 2014
+ggINPpartidos14 <- 
 ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2014 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
+       aes(reorder(SIGLA_PARTIDO, gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
   geom_hline(yintercept=0.498, linetype="dashed")+
-  labs(x='', y='Média do INP')
+  labs(x='', y='Média do INP') +
+  coord_flip() +
+  theme_hc()
 
 ggsave("./graficos/bar2014.png", height=3, width=5, units='in', dpi=450)
 
 # 2018
+
+ggINPpartidos18 <- 
 ggplot(nacionalizacao[nacionalizacao$ANO_ELEICAO==2018 & nacionalizacao$perc_nacio>=1,], 
-       aes(reorder(SIGLA_PARTIDO, -gini), gini))+
+       aes(reorder(SIGLA_PARTIDO, gini), gini))+
   geom_bar(stat = 'identity')+
   theme(
     axis.title.x = element_blank(),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
   geom_hline(yintercept=0.532, linetype="dashed")+
-  labs(x='', y='Média do INP')
+  labs(x='', y='Média do INP') +
+  coord_flip() +
+  theme_hc()
 
 ggsave("./graficos/bar2018.png", height=3, width=5, units='in', dpi=450)
 
